@@ -1,11 +1,11 @@
 #!/bin/bash
 echo "***** Checkout the flexswitch base image *******"
-docker pull snapos/flex:flex2
+docker pull snapos/flex:latest
 
 echo "***** Spawn 2 docker instances d_inst1 d_inst2"
 
-docker run -dt --privileged --log-driver=syslog --cap-add=ALL  --name d_inst1   -P snapos/flex:flex2
-docker run -dt --privileged --log-driver=syslog --cap-add=ALL --name d_inst2 -P snapos/flex:flex2
+docker run -dt --privileged --log-driver=syslog --cap-add=ALL  --name d_inst1   -P snapos/flex:latest
+docker run -dt --privileged --log-driver=syslog --cap-add=ALL --name d_inst2 -P snapos/flex:latest
 
 sleep 20
 
