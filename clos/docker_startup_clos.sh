@@ -286,7 +286,7 @@ function make_veth {
   sudo ip -n $src_namespace link set eth$src_int up
   echo -e "\t\tBringing up DEST eth$dest_int"
   sudo ip -n $dest_namespace link set eth$dest_int up
-  echo "$src_namespace,eth$src_int,$dest_namespace,eth$dest_int" >> links
+  echo "$src_namespace,eth$src_int,$dest_namespace,eth$dest_int" >> $netlinks
 }
 
 for spine_key in "${!a_spines[@]}"; do
