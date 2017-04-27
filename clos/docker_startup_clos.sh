@@ -23,6 +23,7 @@ declare -A a_cores
 declare -A a_spines
 declare -A a_leaves
 container_record="containers.lst"
+netlinks="netlinks"
 
 #Set colours/text styles
 NORM=$(tput sgr0)
@@ -199,8 +200,9 @@ if [ $cores -ne 0 ]; then
     echo "Core number: $i"
     docker_start_core $i
     namespace=$(sudo docker inspect -f '{{.State.Pid}}' core$i)
-    echo "core$i,$namespace" >> $container_record
-    echo -e "\t" $(sudo ln -vs /proc/$namespace/ns/net /var/run/netns/$namespace)
+    mgmt_ip=$(sudo docker inspect -f '{{.NetworkSettings.Networks.bridge.IPAddress}}' core$i)
+    echo "core$i,$namespace,$mgmt_ip" >> $container_record
+    echo -en "\t"; sudo ln -vs /proc/$namespace/ns/net /var/run/netns/$namespace
     a_cores["core$i"]="$namespace"
   done
 fi # if [ $cores -ne 0 ]; then
@@ -211,8 +213,8 @@ if [ $spines -ne 0 ]; then
     echo "Spine number: $i"
     docker_start_spine $i
     namespace=$(sudo docker inspect -f '{{.State.Pid}}' spine$i)
-    mgmt_ip=$(sudo docker inspect -f '{{.NetworkSettings.Networks.bridge.IPAddress}}')
-    echo -e "\t" $(sudo ln -vs /proc/$namespace/ns/net /var/run/netns/$namespace)
+    mgmt_ip=$(sudo docker inspect -f '{{.NetworkSettings.Networks.bridge.IPAddress}}' spine$i)
+    echo -en "\t"; sudo ln -vs /proc/$namespace/ns/net /var/run/netns/$namespace
     echo "spine$i,$namespace,$mgmt_ip" >> $container_record
     a_spines["spine$i"]="$namespace"
   done
@@ -224,9 +226,9 @@ if [ $leaf -ne 0 ]; then
     echo "Leaf number: $i"
     docker_start_leaf $i
     namespace=$(sudo docker inspect -f '{{.State.Pid}}' leaf$i)
-    mgmt_ip=$(sudo docker inspect -f '{{.NetworkSettings.Networks.bridge.IPAddress}}')
-    echo -e "\t" $(sudo ln -vs /proc/$namespace/ns/net /var/run/netns/$namespace)
-    echo "spine$i,$namespace,$mgmt_ip" >> $container_record
+    mgmt_ip=$(sudo docker inspect -f '{{.NetworkSettings.Networks.bridge.IPAddress}}' leaf$i)
+    echo -en "\t"; sudo ln -vs /proc/$namespace/ns/net /var/run/netns/$namespace
+    echo "leaf$i,$namespace,$mgmt_ip" >> $container_record
     a_leaves["leaf$i"]="$namespace"
   done
 fi # if [ $leaf -ne 0 ]; then
@@ -237,9 +239,9 @@ if [ $hosts -ne 0 ]; then
     echo "HOST number: $i"
     docker_start_host $i
     namespace=$(sudo docker inspect -f '{{.State.Pid}}' host$i)
-    mgmt_ip=$(sudo docker inspect -f '{{.NetworkSettings.Networks.bridge.IPAddress}}')
+    mgmt_ip=$(sudo docker inspect -f '{{.NetworkSettings.Networks.bridge.IPAddress}}' host$i)
     sudo ln -vs /proc/$namespace/ns/net /var/run/netns/$namespace
-    echo "spine$i,$namespace,$mgmt_ip" >> $container_record
+    echo "host$i,$namespace,$mgmt_ip" >> $container_record
   done
 fi # if [ $leaf -ne 0 ]; then
 
@@ -284,6 +286,7 @@ function make_veth {
   sudo ip -n $src_namespace link set eth$src_int up
   echo -e "\t\tBringing up DEST eth$dest_int"
   sudo ip -n $dest_namespace link set eth$dest_int up
+  echo "$src_namespace,eth$src_int,$dest_namespace,eth$dest_int" >> links
 }
 
 for spine_key in "${!a_spines[@]}"; do
@@ -364,3 +367,11 @@ for instance in $(sudo docker ps | awk '{print $NF}'|grep -v "NAME"); do
      exit 1
   fi # if [ $? -ne 0 ]
 done
+
+IFS=","
+cat $container_record | while read cid name namespace ip; do 
+  sed -i "s/$namespace/$name/g" $netlinks 
+done
+unset IFS
+
+sort links
