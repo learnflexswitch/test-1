@@ -200,7 +200,7 @@ if [ $cores -ne 0 ]; then
     docker_start_core $i
     namespace=$(sudo docker inspect -f '{{.State.Pid}}' core$i)
     echo "core$i,$namespace" >> $container_record
-    sudo ln -vs /proc/$namespace/ns/net /var/run/netns/$namespace
+    echo -e "\t" $(sudo ln -vs /proc/$namespace/ns/net /var/run/netns/$namespace)
     a_cores["core$i"]="$namespace"
   done
 fi # if [ $cores -ne 0 ]; then
@@ -211,8 +211,9 @@ if [ $spines -ne 0 ]; then
     echo "Spine number: $i"
     docker_start_spine $i
     namespace=$(sudo docker inspect -f '{{.State.Pid}}' spine$i)
-    sudo ln -vs /proc/$namespace/ns/net /var/run/netns/$namespace
-    echo "spine$i,$namespace" >> $container_record
+    mgmt_ip=$(sudo docker inspect -f '{{.NetworkSettings.Networks.bridge.IPAddress}}')
+    echo -e "\t" $(sudo ln -vs /proc/$namespace/ns/net /var/run/netns/$namespace)
+    echo "spine$i,$namespace,$mgmt_ip" >> $container_record
     a_spines["spine$i"]="$namespace"
   done
 fi # if [ $spines -ne 0 ]; then
@@ -223,8 +224,9 @@ if [ $leaf -ne 0 ]; then
     echo "Leaf number: $i"
     docker_start_leaf $i
     namespace=$(sudo docker inspect -f '{{.State.Pid}}' leaf$i)
-    sudo ln -vs /proc/$namespace/ns/net /var/run/netns/$namespace
-    echo "spine$i,$namespace" >> $container_record
+    mgmt_ip=$(sudo docker inspect -f '{{.NetworkSettings.Networks.bridge.IPAddress}}')
+    echo -e "\t" $(sudo ln -vs /proc/$namespace/ns/net /var/run/netns/$namespace)
+    echo "spine$i,$namespace,$mgmt_ip" >> $container_record
     a_leaves["leaf$i"]="$namespace"
   done
 fi # if [ $leaf -ne 0 ]; then
@@ -235,8 +237,9 @@ if [ $hosts -ne 0 ]; then
     echo "HOST number: $i"
     docker_start_host $i
     namespace=$(sudo docker inspect -f '{{.State.Pid}}' host$i)
+    mgmt_ip=$(sudo docker inspect -f '{{.NetworkSettings.Networks.bridge.IPAddress}}')
     sudo ln -vs /proc/$namespace/ns/net /var/run/netns/$namespace
-    echo "spine$i,$namespace" >> $container_record
+    echo "spine$i,$namespace,$mgmt_ip" >> $container_record
   done
 fi # if [ $leaf -ne 0 ]; then
 
