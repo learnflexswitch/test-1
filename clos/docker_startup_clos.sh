@@ -139,7 +139,7 @@ function docker_start_core {
     instance="$1"
   fi # if [ ! -z "$1" ]; then
   echo -e "\tStarting a docker container type: ${REV}FlexSwitch Core${NORM}, instance name: ${BOLD}core$instance${NORM}"
-  container_id=$(sudo docker run -dt --log-driver=syslog --cap-add NET_ADMIN --cap-add NET_BROADCAST --hostname=core$instance --name core$instance -P snapos/flex:latest)
+  container_id=$(sudo docker run -dt --log-driver=syslog --privileged --cap-add ALL --hostname=core$instance --name core$instance -P snapos/flex:latest)
   if [ $? -ne 0 ]; then
     echo "${RED}ERROR:${NORM} Failed starting docker instance \"$instance\". Please check output above and fix" 1>&2
     exit 1
@@ -154,7 +154,7 @@ function docker_start_spine {
     instance="$1"
   fi # if [ ! -z "$1" ]; then
   echo -e "\tStarting a docker container type: ${REV}FlexSwitch Spine${NORM}, instance name: ${BOLD}spine$instance${NORM}"
-  container_id=$(sudo docker run -dt --log-driver=syslog --cap-add NET_ADMIN --cap-add NET_BROADCAST --hostname=spine$instance --name spine$instance -P snapos/flex:latest)
+  container_id=$(sudo docker run -dt --log-driver=syslog --privileged --cap-add ALL --hostname=spine$instance --name spine$instance -P snapos/flex:latest)
   if [ $? -ne 0 ]; then
     echo "${RED}ERROR:${NORM} Failed starting docker instance \"$instance\". Please check output above and fix" 1>&2
     exit 1
@@ -169,7 +169,7 @@ function docker_start_leaf {
     instance="$1"
   fi # if [ ! -z "$1" ]; then
   echo -e "\tStarting a docker container type: ${REV}FlexSwitch Leaf${NORM}, instance name: ${BOLD}leaf$instance${NORM}"
-  container_id=$(sudo docker run -dt --log-driver=syslog --cap-add NET_ADMIN --cap-add NET_BROADCAST --hostname=leaf$instance --name leaf$instance -P snapos/flex:latest)
+  container_id=$(sudo docker run -dt --log-driver=syslog --privileged --cap-add ALL --hostname=leaf$instance --name leaf$instance -P snapos/flex:latest)
   if [ $? -ne 0 ]; then
     echo "${RED}ERROR:${NORM} Failed starting docker instance \"$instance\". Please check output above and fix" 1>&2
     exit 1
