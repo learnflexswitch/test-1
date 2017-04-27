@@ -10,7 +10,7 @@ fi # if [ $# -ne 1 ]
 container_record=$1
 if [ -r "$container_record" ]; then
   IFS=","
-  cat $container_record | while read cid name namespace; do
+  cat $container_record | while read cid name namespace ip; do
     echo "Container $name (id: $cid): "
     echo -en "\tDocker stop: "
     sudo docker stop $cid
