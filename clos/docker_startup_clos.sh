@@ -368,10 +368,13 @@ for instance in $(sudo docker ps | awk '{print $NF}'|grep -v "NAME"); do
   fi # if [ $? -ne 0 ]
 done
 
+echo "Network Links:"
 IFS=","
 cat $container_record | while read cid name namespace ip; do 
   sed -i "s/$namespace/$name/g" $netlinks 
 done
 unset IFS
-
 sort links
+
+echo "Containers:"
+cat $container_record
