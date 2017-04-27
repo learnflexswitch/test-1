@@ -24,3 +24,5 @@ else
   echo "ERROR: Could not read $container_record for processing."
   exit 1
 fi
+# Final cleanup piece
+rm $container_record
