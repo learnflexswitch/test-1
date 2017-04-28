@@ -374,7 +374,7 @@ cat $container_record | while read cid name namespace ip; do
   sed -i "s/$namespace/$name/g" $netlinks 
 done
 unset IFS
-sort links
+sort netlinks
 
 echo "Containers:"
 cat $container_record
