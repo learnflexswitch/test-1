@@ -7,19 +7,42 @@
 #5491649ff892284be536ebf7fa6cc016839b2a81bc2e4b0b1e5de8bbf7d54b59,spine1,21971,172.17.0.4
 
 IFS=","
+echo "BGPGlobal settings"
 cat containers.lst | while read cid name ns ip; do
   echo "fluffy.py --host $ip BGPGlobal config PATCH --json_blob '{\"ASNum\":\"$ns\",\"RouterID\":\"$name:$ns\"}'"
 done
 
+echo "LLDPGlobal settings"
+cat containers.lst | while read cid name ns ip; do
+  echo "fluffy.py --host $ip LLDPGlobal config PATCH --json_blob '{\"Enable\": \"true\"}'"
+done
+
+echo "Per-port description"
 sort -t "," -k1 netlinks | while read src srcnic dst dstnic; do 
   grep "$src" containers.lst | while read cid name ns ip; do
     echo "fluffy.py --host $ip Port config PATCH --json_blob '{\"Description\":\"$src:$srcnic to $dst:$dstnic\", \"IntfRef\":\"$srcnic\"}'"
+
     #echo "fluffy.py --host $name Port config PATCH --json_blob '{\"Description\":\"$src:$srcnic to $dst:$dstnic\", \"IntfRef\":\"$srcnic\"}'"
   done
 done
 sort -t "," -k3 netlinks | while read src srcnic dst dstnic; do 
   grep "$dst" containers.lst | while read cid name ns ip; do
     echo "fluffy.py --host $ip Port config PATCH --json_blob '{\"Description\":\"$dst:$dstnic to $src:$srcnic\", \"IntfRef\":\"$dstnic\"}'"
+    #echo "fluffy.py --host $name Port config PATCH --json_blob '{\"Description\":\"$dst:$dstnic to $src:$srcnic\", \"IntfRef\":\"$dstnic\"}'"
+  done
+done
+
+echo "Per-port LLDP"
+sort -t "," -k1 netlinks | while read src srcnic dst dstnic; do 
+  grep "$src" containers.lst | while read cid name ns ip; do
+    echo "fluffy.py --host $ip LLDPIntf config PATCH --json_blob '{\"Enable\":\"true\", \"IntfRef\":\"$srcnic\"}'"
+
+    #echo "fluffy.py --host $name Port config PATCH --json_blob '{\"Description\":\"$src:$srcnic to $dst:$dstnic\", \"IntfRef\":\"$srcnic\"}'"
+  done
+done
+sort -t "," -k3 netlinks | while read src srcnic dst dstnic; do 
+  grep "$dst" containers.lst | while read cid name ns ip; do
+    echo "fluffy.py --host $ip LLDPIntf config PATCH --json_blob '{\"Enable\":\"true\", \"IntfRef\":\"$dstnic\"}'"
     #echo "fluffy.py --host $name Port config PATCH --json_blob '{\"Description\":\"$dst:$dstnic to $src:$srcnic\", \"IntfRef\":\"$dstnic\"}'"
   done
 done
