@@ -1,4 +1,16 @@
 #!/bin/bash
+OS="`uname`"
+case $OS in
+  'Linux')
+    OS='Linux'
+	echo "**** Start the docker script *****"
+    ;;
+  *)
+       echo " The underlying Operating System is not Linux. Docker with flexswitch is not supported."
+       echo " Exiting......"
+       exit 1 
+   ;;
+esac
 echo "***** Checkout the flexswitch base image *******"
 docker pull snapos/flex:latest
 
@@ -27,7 +39,8 @@ sudo ip netns exec $d1_pid ip link set eth25 up
 sudo ip link set eth35 netns $d2_pid
 sudo ip netns exec $d2_pid  ip link set eth35 up
 
-
+echo -e "Preparing docker for the flexswtich . Please wait... "
+sleep 30
 echo -e "Start flexswtich to pick up the interfaces "
 echo "##############################"
 echo "#######d_inst1 FS restart######"
