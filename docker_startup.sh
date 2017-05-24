@@ -31,13 +31,13 @@ ln -s /proc/$d2_pid/ns/net /var/run/netns/$d2_pid
 
 echo -e "done!\n"
 
-sudo ip link add eth25 type veth peer name eth35
+sudo ip link add fpPort25 type veth peer name fpPort35
 
-sudo ip link set eth25 netns $d1_pid
-sudo ip netns exec $d1_pid ip link set eth25 up
+sudo ip link set fpPort25 netns $d1_pid
+sudo ip netns exec $d1_pid ip link set fpPort25 up
 
-sudo ip link set eth35 netns $d2_pid
-sudo ip netns exec $d2_pid  ip link set eth35 up
+sudo ip link set fpPort35 netns $d2_pid
+sudo ip netns exec $d2_pid  ip link set fpPort35 up
 
 echo -e "Preparing docker for the flexswtich . Please wait... "
 sleep 30
